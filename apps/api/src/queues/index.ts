@@ -1,6 +1,10 @@
 import { Queue, Worker, type JobsOptions } from "bullmq";
 import { redis } from "../redis";
 import { sendBrevoEmail } from "../email/brevo";
+import { db } from "@shopstream/db";
+import { products, categories } from "@shopstream/db/schema";
+import { eq } from "drizzle-orm";
+import { submitUrls } from "../indexing/bing";
 
 let emailQueue: Queue | null = null;
 let imageQueue: Queue | null = null;
@@ -41,7 +45,18 @@ export async function initQueues() {
     "index-product",
     async (job) => {
       const { productId } = job.data as { productId: string };
-      console.log("[index-product] re-indexed", productId);
+      const [row] = await db
+        .select({ slug: products.slug, categorySlug: categories.slug })
+        .from(products)
+        .innerJoin(categories, eq(products.categoryId, categories.id))
+        .where(eq(products.id, productId))
+        .limit(1);
+      if (!row) {
+        console.warn("[index-product] product not found", productId);
+        return;
+      }
+      await submitUrls([`/product/${row.slug}`, `/category/${row.categorySlug}`]);
+      console.log("[index-product] submitted", productId);
     },
     { connection: redis() },
   );

@@ -155,3 +155,69 @@ PageSpeed Insights (mobile): target ≥ 90 in all four categories.
 - Vercel: Project → Deployments → Promote previous deployment.
 - Render: Manual Deploy → pick previous commit.
 - DB: Neon branching lets you roll back to a branch snapshot.
+
+---
+
+## 16. Health probe auth (`HEALTH_TOKEN`)
+
+`GET /healthz` is gated by `HEALTH_TOKEN` when set (Render auto-generates one if you use the supplied `render.yaml`). Without the token the probe is public (dev-friendly); with it, the cron job must send:
+
+```
+Authorization: Bearer <HEALTH_TOKEN>
+```
+
+`/readyz` stays unauthenticated and pings Redis.
+
+## 17. cron-job.org — exact setup
+
+1. New cronjob → URL: `https://<your-render-host>.onrender.com/healthz`
+2. Method: **GET**. Schedule: `*/5 * * * *`. Timeout: 30 s.
+3. **Custom request header**:
+   - Name: `Authorization`
+   - Value: `Bearer <paste HEALTH_TOKEN from Render env>`
+4. Notifications: enable email-on-failure.
+5. Save and confirm it ran once successfully (Status 200).
+
+If you rotate `HEALTH_TOKEN` on Render, update the header in cron-job.org within 5 minutes (the next ping).
+
+## 18. Slack alerts
+
+Slack incoming webhooks are used to surface **payment failures only** (intentionally quiet).
+
+Setup:
+
+1. In Slack, create (or pick) a channel (e.g. `#shopstream-alerts`).
+2. Slack → Settings → Apps → Incoming Webhooks → Add to Slack → pick the channel → copy the webhook URL.
+3. Add it to Render env as `SLACK_WEBHOOK_URL`.
+4. Trigger a test: in your Razorpay test dashboard, simulate a `payment.failed` webhook for a known order; you should see the alert in the channel.
+
+If the channel goes silent, the most likely cause is an invalid webhook URL — re-create it in Slack and update Render env.
+
+## 19. Bing Indexing API (auto-submit)
+
+The `index-product` BullMQ worker submits both `/product/<slug>` and `/category/<slug>` to Bing whenever a product is upserted. Setup:
+
+1. Add your site to [Bing Webmaster Tools](https://www.bing.com/webmasters) and verify ownership.
+2. Bing Webmaster → Settings → API Access → Generate API Key.
+3. Render env:
+   - `BING_API_KEY=<the key>`
+   - `BING_SITE_URL=https://shopstream.vercel.app` (must **exactly** match the registered property).
+4. After deploy, trigger a manual test:
+   ```bash
+   # locally (with same env)
+   pnpm --filter @shopstream/api dev
+   # in another shell, enqueue a job (or trigger via admin route)
+   ```
+   Or temporarily call from a script:
+   ```bash
+   curl -X POST 'https://ssl.bing.com/webmaster/api.svc/SubmitUrlbatch?apikey=<BING_API_KEY>' \
+        -H 'content-type: application/json' \
+        -d '{"siteUrl":"https://shopstream.vercel.app","urlList":["/","/category/fashion"]}'
+   ```
+   Expect HTTP 200.
+
+Quota: Bing allows ~10,000 submissions/day per site. The worker logs every submission; if you see frequent `429`s, the worker is fine — Bing just throttles, and the URLs will be picked up by sitemap submission anyway.
+
+---
+
+

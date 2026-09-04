@@ -57,7 +57,16 @@ const limiter = rateLimit({
 });
 app.use("/api/", limiter);
 
-app.get("/healthz", (_req, res) => res.json({ ok: true, ts: Date.now() }));
+app.get("/healthz", (req, res) => {
+  const token = process.env.HEALTH_TOKEN;
+  if (!token) return res.json({ ok: true, ts: Date.now(), auth: "open" });
+  const header = req.header("authorization") ?? "";
+  const got = header.startsWith("Bearer ") ? header.slice(7) : "";
+  if (got !== token) {
+    return res.status(401).json({ ok: false, error: "unauthorized" });
+  }
+  return res.json({ ok: true, ts: Date.now(), auth: "token" });
+});
 app.get("/readyz", async (_req, res) => {
   try {
     await redis().ping();
