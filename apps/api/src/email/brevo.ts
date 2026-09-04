@@ -19,6 +19,8 @@ const TEMPLATES: Record<string, { subject: string; html: (data: Record<string, u
   },
 };
 
+const isLive = !!env.BREVO_API_KEY && env.BREVO_API_KEY.startsWith("xkeysib-");
+
 export async function sendBrevoEmail(
   template: keyof typeof TEMPLATES,
   to: string,
@@ -26,20 +28,32 @@ export async function sendBrevoEmail(
 ) {
   const t = TEMPLATES[template];
   if (!t || !to) return;
-  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: {
-      "api-key": env.BREVO_API_KEY,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      sender: { name: env.BREVO_FROM_NAME, email: env.BREVO_FROM_EMAIL },
-      to: [{ email: to }],
-      subject: t.subject,
-      htmlContent: t.html(data),
-    }),
-  });
-  if (!res.ok) console.error("[brevo]", res.status, await res.text());
+
+  if (!isLive) {
+    console.warn(
+      `[brevo:mock] -> to=${to} template=${template} subject="${t.subject}" data=${JSON.stringify(data)}`,
+    );
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": env.BREVO_API_KEY as string,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: env.BREVO_FROM_NAME, email: env.BREVO_FROM_EMAIL },
+        to: [{ email: to }],
+        subject: t.subject,
+        htmlContent: t.html(data),
+      }),
+    });
+    if (!res.ok) console.error("[brevo]", res.status, await res.text());
+  } catch (err) {
+    console.error("[brevo] network error", err);
+  }
 }
 
 export function mountBrevo(_app: unknown) {

@@ -14,7 +14,7 @@ const Schema = z.object({
   RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
   CLERK_SECRET_KEY: z.string(),
   CLERK_WEBHOOK_SECRET: z.string(),
-  BREVO_API_KEY: z.string(),
+  BREVO_API_KEY: z.string().optional(),
   BREVO_FROM_EMAIL: z.string().default("orders@shopstream.app"),
   BREVO_FROM_NAME: z.string().default("ShopStream"),
   CLOUDINARY_CLOUD_NAME: z.string(),
