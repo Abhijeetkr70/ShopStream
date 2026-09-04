@@ -3,8 +3,8 @@ services:
     name: shopstream-api
     runtime: node
     rootDir: apps/api
-    plan: starter
-    buildCommand: cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @shopstream/db generate && pnpm --filter @shopstream/api build
+    plan: free
+    buildCommand: cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @shopstream/db generate && pnpm --filter @shopstream/api build && pnpm --filter @shopstream/db exec tsx src/migrate.ts
     startCommand: cd ../.. && pnpm --filter @shopstream/api start
     healthCheckPath: /healthz
     autoDeploy: true
