@@ -5,12 +5,19 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "../config";
 
-cloudinary.config({
-  cloud_name: env.CLOUDINARY_CLOUD_NAME,
-  api_key: env.CLOUDINARY_API_KEY,
-  api_secret: env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+const hasCloudinary =
+  !!env.CLOUDINARY_CLOUD_NAME &&
+  !!env.CLOUDINARY_API_KEY &&
+  !!env.CLOUDINARY_API_SECRET;
+
+if (hasCloudinary) {
+  cloudinary.config({
+    cloud_name: env.CLOUDINARY_CLOUD_NAME,
+    api_key: env.CLOUDINARY_API_KEY,
+    api_secret: env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -27,11 +34,14 @@ const upload = multer({
 export function mountCloudinary(app: Express) {
   const r: Router = makeRouter();
 
-  r.post("/uploads/sign", async (req, res) => {
+  r.post("/uploads/sign", async (_req, res) => {
+    if (!hasCloudinary) {
+      return res.status(503).json({ error: "Cloudinary not configured (mock mode)" });
+    }
     const timestamp = Math.round(Date.now() / 1000);
     const signature = cloudinary.utils.api_sign_request(
       { timestamp, folder: "shopstream" },
-      env.CLOUDINARY_API_SECRET,
+      env.CLOUDINARY_API_SECRET as string,
     );
     res.json({
       cloudName: env.CLOUDINARY_CLOUD_NAME,
@@ -44,6 +54,9 @@ export function mountCloudinary(app: Express) {
 
   r.post("/uploads", upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file" });
+    if (!hasCloudinary) {
+      return res.status(503).json({ error: "Cloudinary not configured (mock mode)" });
+    }
     const result = await new Promise<{ secure_url: string; public_id: string }>(
       (resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
