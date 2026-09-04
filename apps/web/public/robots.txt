@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Disallow private/auth surfaces
+Disallow: /api
+Disallow: /admin
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+
+# Allow AI crawlers to read public content
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Point crawlers at the machine-readable docs
+# See: https://shopstream.app/sitemap.xml
+# See: https://shopstream.app/llms.txt
+# See: https://shopstream.app/llms-full.txt
+# See: https://shopstream.app/.well-known/agent.json

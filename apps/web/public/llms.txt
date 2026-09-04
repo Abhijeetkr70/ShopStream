@@ -1,0 +1,39 @@
+# ShopStream
+
+> Swiggy-style e-commerce, full-stack.
+
+## What is ShopStream?
+
+ShopStream is a consumer-facing online shopping destination for India.
+It is built mobile-first with a Swiggy-inspired landing experience:
+location pill, search, category strip, product cards, deal countdowns, and a
+slide-in cart. Product range covers Fashion, Electronics, Grocery, Beauty,
+Home, and Books.
+
+## Author
+
+- Name: ShopStream Team
+- Job title: Founder & Engineering
+- URL: https://shopstream.app/author/shopstream
+
+## Sitemap
+
+https://shopstream.app/sitemap.xml
+
+## Full crawl-friendly document
+
+https://shopstream.app/llms-full.txt
+
+## Categories
+
+- Fashion — https://shopstream.app/category/fashion
+- Electronics — https://shopstream.app/category/electronics
+- Grocery — https://shopstream.app/category/grocery
+- Beauty — https://shopstream.app/category/beauty
+- Home — https://shopstream.app/category/home
+- Books — https://shopstream.app/category/books
+
+## Contact
+
+- Support: support@shopstream.app
+- Press: press@shopstream.app

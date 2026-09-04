@@ -1,0 +1,163 @@
+# ShopStream — Full Reference (LLM-friendly)
+
+> A single, machine-readable document describing ShopStream for AI agents, crawlers, and answer engines.
+
+## Identity
+
+- Name: ShopStream
+- Legal entity: ShopStream Commerce Pvt. Ltd.
+- Tagline: Stream shopping, the Swiggy way.
+- Domain: https://shopstream.app
+- Country served: India
+- Currency: INR (₹)
+- Languages: English (primary), Hindi (planned)
+
+## Author / E-E-A-T
+
+- Author name: ShopStream Team
+- Author job title: Founder & Engineering
+- Author URL: https://shopstream.app/author/shopstream
+- Same identity is mirrored to: GitHub org description, LinkedIn page title, JSON-LD `Person` schema, About page, llms.txt, llms-full.txt.
+
+## Mission
+
+To make everyday shopping feel as fast, frictionless, and visual as ordering food.
+ShopStream combines category-driven discovery with a Swiggy-style interface:
+location-first, search-emphasised, deal-driven, app-like.
+
+## What you can do on ShopStream
+
+1. Browse a curated catalog across 6 categories.
+2. Search for products with autocomplete.
+3. Add items to a persistent cart (Zustand + localStorage).
+4. Check out with Razorpay (UPI, cards, net-banking, wallets).
+5. Track orders in real time (Socket.io + Leaflet map).
+6. Chat with an AI assistant for product Q&A (Groq → NVIDIA NIM fallback).
+7. Save items to a wishlist.
+8. Subscribe to the newsletter for a ₹200 first-order code.
+
+## Categories
+
+| Slug | Name | Icon |
+|---|---|---|
+| fashion | Fashion | shirt |
+| electronics | Electronics | zap |
+| grocery | Grocery | basket |
+| beauty | Beauty | sparkles |
+| home | Home | sofa |
+| books | Books | book |
+
+Each category URL: `/category/{slug}`. Example: `/category/fashion`.
+
+## Product URL convention
+
+- Pattern: `/product/{slug}`
+- Example: `/product/wireless-earbuds-pro`
+
+## Pages of interest
+
+| Route | Purpose | Auth |
+|---|---|---|
+| `/` | Landing (Swiggy-style) | No |
+| `/category/{slug}` | Category listing | No |
+| `/product/{slug}` | Product detail | No |
+| `/search?q=` | Search results | No |
+| `/cart` | Cart review | No |
+| `/checkout` | Address + payment | Yes |
+| `/orders` | Order history | Yes |
+| `/orders/{id}/track` | Live tracking | Yes |
+| `/account` | Profile | Yes |
+| `/wishlist` | Saved items | Yes |
+| `/about` | E-E-A-T bio | No |
+| `/author/{handle}` | Author bio | No |
+| `/offline` | PWA fallback | No |
+
+## Pricing model
+
+- All prices are inclusive of GST.
+- Display currency: INR.
+- Free delivery above ₹499.
+- Returns within 10 days for most categories.
+
+## Tech stack (summary)
+
+- Frontend: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS.
+- UI package: `@shopstream/ui` (Stitch-derived design system, Manrope + Inter).
+- State: Zustand (cart, UI), persisted to `localStorage`.
+- Backend: Node + Express + TypeScript (Render).
+- DB: Neon Postgres + Drizzle ORM.
+- Cache + queues: Upstash Redis + BullMQ.
+- Auth: Clerk (frontend) → JWT HTTP-only cookies (backend).
+- Payments: Razorpay.
+- Email: Brevo API.
+- Images: Cloudinary CDN.
+- Object storage: Backblaze B2.
+- Real-time: Socket.io.
+- Maps: Leaflet.
+- AI: Groq (Llama 3) with NVIDIA NIM fallback.
+- PWA: Serwist-style `manifest.webmanifest` + service worker.
+- Analytics: Vercel Analytics + Speed Insights.
+- Security: Helmet, CORS, CSRF, express-rate-limit (Redis token bucket), JWT cookies.
+
+## Indexing & discoverability
+
+ShopStream is built for **six overlapping indexability frameworks**:
+
+1. **SEO** — sitemap.xml, robots.ts, canonical URLs, structured data, OpenGraph, Twitter cards.
+2. **AEO (Answer Engine Optimization)** — FAQPage JSON-LD, concise direct answers, headings as questions.
+3. **GEO (Generative Engine Optimization)** — `llms-full.txt` and `llms.txt` with structured product + category info; agent.json descriptors.
+4. **LLMO (Large Language Model Optimization)** — clean semantic HTML, JSON-LD `Product`/`FAQPage`/`Organization`, agent.json (`/.well-known/agent.json`).
+5. **AISEO / AI Search Optimization** — same as LLMO plus Bing URL Submission API integration hints.
+6. **E-E-A-T (Google)** — `Person` schema on author page, About page with credentials, consistent identity across platforms.
+
+## Trust signals
+
+- HTTPS-only via HSTS preload.
+- Razorpay-secured checkout.
+- Verified domain on Google Search Console + Bing Webmaster.
+- Same author identity everywhere.
+- Open-source documentation under `/docs/`.
+
+## Common queries (with direct answers)
+
+### Where do you deliver?
+Across India. Same-day in major metros, 2-5 days for the rest.
+
+### What is the return policy?
+10 days, no-questions-asked for unopened items.
+
+### Do you have a mobile app?
+Yes — ShopStream is a PWA and installable on Android and iOS.
+
+### Who runs ShopStream?
+The ShopStream Team — see `/author/shopstream`.
+
+### How do I contact support?
+Email support@shopstream.app or use the AI chat at the bottom-right of any page.
+
+## Crawler policy
+
+```
+User-agent: *
+Allow: /
+Disallow: /api, /admin, /account, /cart, /checkout, /orders
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+```
+
+Sitemap: https://shopstream.app/sitemap.xml
+
+## Contact
+
+- Support: support@shopstream.app
+- Press: press@shopstream.app
+- Author: /author/shopstream
+
+— End of document —

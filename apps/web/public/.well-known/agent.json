@@ -1,0 +1,45 @@
+{
+  "name": "ShopStream",
+  "version": "1.0.0",
+  "description": "ShopStream agent skills — AI agent can browse products, fetch categories, check orders, and start checkout.",
+  "homepage": "https://shopstream.app",
+  "author": {
+    "name": "ShopStream Team",
+    "jobTitle": "Founder & Engineering",
+    "url": "https://shopstream.app/author/shopstream"
+  },
+  "skills": [
+    {
+      "id": "browse-category",
+      "name": "Browse category",
+      "description": "List products in a ShopStream category.",
+      "endpoint": "https://shopstream.app/category/{slug}",
+      "method": "GET",
+      "params": { "slug": "string, required, one of: fashion, electronics, grocery, beauty, home, books" }
+    },
+    {
+      "id": "product-detail",
+      "name": "Get product",
+      "description": "Fetch a single ShopStream product.",
+      "endpoint": "https://shopstream.app/product/{slug}",
+      "method": "GET",
+      "params": { "slug": "string, required" }
+    },
+    {
+      "id": "search",
+      "name": "Search products",
+      "description": "Search the ShopStream catalog.",
+      "endpoint": "https://shopstream.app/search?q={query}",
+      "method": "GET",
+      "params": { "q": "string, required" }
+    },
+    {
+      "id": "ai-chat",
+      "name": "Ask the ShopStream assistant",
+      "description": "Ask a question grounded on the ShopStream catalog.",
+      "endpoint": "https://shopstream.app/api/ai/chat",
+      "method": "POST",
+      "body": { "sessionId": "uuid, optional", "message": "string, required" }
+    }
+  ]
+}

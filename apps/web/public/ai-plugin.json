@@ -1,0 +1,14 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "shopstream",
+  "name_for_human": "ShopStream",
+  "description": "ShopStream is a Swiggy-style e-commerce site for India. The assistant can fetch product listings, category pages, and product details by URL.",
+  "auth": { "type": "none" },
+  "api": {
+    "type": "openapi",
+    "url": "https://shopstream.app/docs/API.md"
+  },
+  "logo_url": "https://shopstream.app/icon-512.png",
+  "contact_email": "support@shopstream.app",
+  "legal_info_url": "https://shopstream.app/legal/terms"
+}

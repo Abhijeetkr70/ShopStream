@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "allowJs": false,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shopstream/ui": ["../../packages/ui/src/index.ts"],
+      "@shopstream/ui/*": ["../../packages/ui/src/*"],
+      "@shopstream/lib": ["../../packages/lib/src/index.ts"],
+      "@shopstream/lib/*": ["../../packages/lib/src/*"],
+      "@shopstream/db": ["../../packages/db/src/index.ts"],
+      "@shopstream/db/*": ["../../packages/db/src/*"],
+      "@shopstream/types": ["../../packages/types/src/index.ts"],
+      "@shopstream/types/*": ["../../packages/types/src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts", "../../packages/lib/src", "../../packages/types/src", "../../packages/db/src", "../../packages/ui/src"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/web && pnpm build",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "trailingSlash": false,
+  "github": {
+    "silent": true
+  }
+}
