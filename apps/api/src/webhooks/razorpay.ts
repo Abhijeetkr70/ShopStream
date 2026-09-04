@@ -3,18 +3,22 @@ import crypto from "node:crypto";
 import { db } from "@shopstream/db";
 import { payments, orders } from "@shopstream/db/schema";
 import { eq } from "drizzle-orm";
-import { env } from "../config";
 import { enqueueEmail } from "../queues/index";
 import { slackAlert } from "../alerts/slack";
 
 export async function razorpayWebhook(req: Request, res: Response) {
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
   const signature = req.header("x-razorpay-signature");
-  if (!signature) return res.status(400).json({ error: "Missing signature" });
-  const expected = crypto
-    .createHmac("sha256", env.RAZORPAY_WEBHOOK_SECRET)
-    .update(JSON.stringify(req.body))
-    .digest("hex");
-  if (expected !== signature) return res.status(400).json({ error: "Bad signature" });
+  if (webhookSecret) {
+    if (!signature) return res.status(400).json({ error: "Missing signature" });
+    const expected = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
+    if (expected !== signature) return res.status(400).json({ error: "Bad signature" });
+  } else {
+    console.warn("[razorpay-webhook] RAZORPAY_WEBHOOK_SECRET not set — accepting unsigned (dev only)");
+  }
 
   const event = req.body?.event;
   if (event === "payment.captured" || event === "order.paid") {

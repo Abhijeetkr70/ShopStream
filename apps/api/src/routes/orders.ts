@@ -83,23 +83,31 @@ ordersRouter.post("/", requireAuth, async (req, res, next) => {
       });
     }
 
-    const rpOrder = await razorpay.orders.create({
-      amount: total,
-      currency: "INR",
-      receipt: order.id,
-      notes: { userId: req.user!.id, orderId: order.id },
-    });
+    let razorpayOrderId: string;
+    if (razorpay) {
+      const rpOrder = await razorpay.orders.create({
+        amount: total,
+        currency: "INR",
+        receipt: order.id,
+        notes: { userId: req.user!.id, orderId: order.id },
+      });
+      razorpayOrderId = rpOrder.id;
+    } else {
+      // Mock mode (no RAZORPAY_KEY_SECRET set): use a deterministic fake ID.
+      razorpayOrderId = `mock_${order.id.replace(/-/g, "").slice(0, 16)}`;
+      console.warn("[orders] razorpay mock mode — order pending manual fulfillment");
+    }
 
     await db.insert(payments).values({
       orderId: order.id,
-      razorpayOrderId: rpOrder.id,
+      razorpayOrderId,
       amount: total,
       status: "pending",
     });
 
     await enqueueEmail("order-created", { orderId: order.id, email: req.user!.email });
 
-    res.json({ orderId: order.id, razorpayOrderId: rpOrder.id, amount: rpOrder.amount });
+    res.json({ orderId: order.id, razorpayOrderId, amount: total });
   } catch (e) {
     next(e);
   }
