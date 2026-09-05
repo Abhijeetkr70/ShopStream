@@ -4,7 +4,7 @@ services:
     runtime: node
     rootDir: apps/api
     plan: free
-    buildCommand: cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @shopstream/db generate && pnpm --filter @shopstream/api build && pnpm --filter @shopstream/db exec tsx src/migrate.ts
+    buildCommand: cd ../.. && corepack enable && corepack prepare pnpm@11.25.0 --activate && pnpm install --frozen-lockfile && pnpm --filter @shopstream/db generate && pnpm --filter @shopstream/api build && pnpm --filter @shopstream/db exec tsx src/migrate.ts
     startCommand: cd ../.. && pnpm --filter @shopstream/api start
     healthCheckPath: /healthz
     autoDeploy: true
