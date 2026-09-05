@@ -1,31 +1,43 @@
-const API_KEY = process.env.BING_API_KEY;
-const SITE_URL = process.env.BING_SITE_URL ?? "https://shopstream.app";
+const ENDPOINT = "https://ssl.bing.com/webmaster/api.svc/SubmitUrlbatch";
 
-export async function submitUrls(urls: string[]): Promise<{ ok: boolean; status?: number; body?: string }> {
-  if (!API_KEY) {
-    console.warn("[bing] BING_API_KEY not set, skipping submit");
-    return { ok: false };
+export interface BingResult {
+  ok: boolean;
+  status: number;
+  body?: string;
+}
+
+/**
+ * Submit a batch of URLs to Bing's URL Submission API.
+ * Docs: https://www.bing.com/webmasters/help/url-submission-api
+ *
+ * No-op if BING_API_KEY or BING_SITE_URL is missing.
+ * Quota: ~10k URLs/day per site.
+ */
+export async function submitUrls(urls: string[]): Promise<BingResult> {
+  const key = process.env.BING_API_KEY;
+  const site = process.env.BING_SITE_URL;
+  if (!key || !site) {
+    return { ok: true, status: 0, body: "skipped (missing BING_API_KEY or BING_SITE_URL)" };
   }
-  if (urls.length === 0) return { ok: true };
-  const fullUrls = urls.map((u) => (u.startsWith("http") ? u : `${SITE_URL.replace(/\/$/, "")}${u.startsWith("/") ? "" : "/"}${u}`));
+  if (urls.length === 0) {
+    return { ok: true, status: 0, body: "skipped (no urls)" };
+  }
+  const url = `${ENDPOINT}?apikey=${encodeURIComponent(key)}`;
   try {
-    const res = await fetch(
-      `https://ssl.bing.com/webmaster/api.svc/SubmitUrlbatch?apikey=${encodeURIComponent(API_KEY)}`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ siteUrl: SITE_URL, urlList: fullUrls }),
-      },
-    );
-    const body = await res.text();
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ siteUrl: site, urlList: urls }),
+    });
+    const text = await res.text();
     if (!res.ok) {
-      console.error("[bing]", res.status, body);
-      return { ok: false, status: res.status, body };
+      console.error("[bing] non-2xx", res.status, text);
+    } else {
+      console.log("[bing] submitted", urls.length, "urls");
     }
-    console.log(`[bing] submitted ${fullUrls.length} url(s)`);
-    return { ok: true, status: res.status, body };
-  } catch (err) {
-    console.error("[bing] network error", err);
-    return { ok: false };
+    return { ok: res.ok, status: res.status, body: text };
+  } catch (e) {
+    console.error("[bing] request failed", e);
+    return { ok: false, status: 0, body: String(e) };
   }
 }

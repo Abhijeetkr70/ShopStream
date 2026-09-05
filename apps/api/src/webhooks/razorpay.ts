@@ -4,7 +4,7 @@ import { db } from "@shopstream/db";
 import { payments, orders } from "@shopstream/db/schema";
 import { eq } from "drizzle-orm";
 import { enqueueEmail } from "../queues/index";
-import { slackAlert } from "../alerts/slack";
+import { slackAlert } from "../notify/slack";
 
 export async function razorpayWebhook(req: Request, res: Response) {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
